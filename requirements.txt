@@ -6,3 +6,4 @@ colorama==0.4.4
 idna==3.3
 pytz==2022.1
 urllib3==1.26.9
+requests>=2.24.0

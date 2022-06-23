@@ -126,8 +126,8 @@ class ObjectConfig :
         
 
 class BACnetManager : 
-    def __init__(self) :
-        self.conn = BAC0.connect('0.0.0.0/24')
+    def __init__(self, ip_addr, subnet_mask=24) :
+        self.conn = BAC0.connect(f'{ip_addr}/{subnet_mask}')
         self.conn.whois()
     
     def scan(self) : 
@@ -164,15 +164,15 @@ class BACnetManager :
             [attributes,timeseries, attribute_updates, rpc] = [[] for i in range(4)]
             objs = self.get_objects_in_device(device)
             for i in range(1, len(objs[0])) :
+                obj_type = objs[0][i][0]
+                if obj_type in blacklist : 
+                    continue;
                 detail = self.get_object_detail(
                             objs[0][i], 
                             device[2]
                 )
                 obj = detail
                 obj_name = obj[0]
-                obj_type = objs[0][i][0]
-                if obj_type in blacklist : 
-                    continue;
                 obj_id = objs[0][i][1]
                 config = ObjectConfig(obj_name, obj_type, obj_id).get_config()
                 attributes.append(config['attributes'])
@@ -197,7 +197,9 @@ class BACnetManager :
             f.write(json.dumps(global_config, indent=4, ensure_ascii=True))
 
 if __name__ == '__main__' : 
-    manager = BACnetManager()
+    ip_addr = ''
+    subnet_mask = 24
+    manager = BACnetManager(ip_addr, subnet_mask = subnet_mask)
     config_generator = ConfigGenerator()
     manager.create_table(config_generator)
     manager.destroy()

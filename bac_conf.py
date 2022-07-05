@@ -3,6 +3,12 @@ import random
 import json
 import argparse
 
+parser = argparse.ArgumentParser(description = 'Thingsboard IOT Gateway auto config generator for BACnet')
+parser.add_argument('--ip_addr', default='0.0.0.0', type=str, help = 'BACNet Interface Address of computer.')
+parser.add_argument('--subnet', default=24, type=int, help = 'Subnetmask of BACnet network')
+parser.add_argument('--port', default = 47808, type=int, help = 'Port number of BACnet')
+parser.add_argument('--mapping_table', type=str, default=None)
+
 poll_period = 10000
 
 class ConfigGenerator :
@@ -33,7 +39,7 @@ class ConfigGenerator :
         return cfg
 
 class DeviceConfig :
-    def __init__(self, ip_address, port=47808, poll_period=10000) :
+    def __init__(self, ip_address, port=47808, poll_period=60000) :
         self._ip = ip_address
         self._port = port
         self._type = 'default'
@@ -126,8 +132,8 @@ class ObjectConfig :
         
 
 class BACnetManager : 
-    def __init__(self, ip_addr, subnet_mask=24) :
-        self.conn = BAC0.connect(f'{ip_addr}/{subnet_mask}')
+    def __init__(self, ip_addr, subnet_mask=24, port = 47808) :
+        self.conn = BAC0.connect(f'{ip_addr}/{subnet_mask}:{port}')
         self.conn.whois()
     
     def scan(self) : 
@@ -197,12 +203,15 @@ class BACnetManager :
             f.write(json.dumps(global_config, indent=4, ensure_ascii=True))
 
 if __name__ == '__main__' : 
-    ip_addr = ''
-    subnet_mask = 24
-    manager = BACnetManager(ip_addr, subnet_mask = subnet_mask)
+    args=parser.parse_args()
+    ip_addr = args.ip_addr
+    subnet_mask = args.subnet
+    port = args.port
+    manager = BACnetManager(ip_addr, subnet_mask = subnet_mask, port = port)
     config_generator = ConfigGenerator()
     manager.create_table(config_generator)
-    manager.destroy()
+    manager.destroy()  
+    print('args : ', args)
 
 
 

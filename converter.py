@@ -29,17 +29,21 @@ def table_to_dict(df) :
     for ip in ips: 
         ret[ip] = dict()
         subset = df[df['ip']==ip]
-        for row in df.itertuples() : 
+        for row in subset.itertuples() : 
             ret[ip][row.key] = row.description
     return ret
 
 mapping_table = table_to_dict(mapping_table)
 
+#with open('verify.json', 'w', encoding='UTF-8-sig') as f : 
+#    f.write(json.dumps(mapping_table, indent=4, ensure_ascii=False))
+#exit(1)
+
 print(json.dumps(mapping_table, indent = 2))
 
 def convert(cfg, mt) : 
     targets = set(['attributes', 'attributeUpdates', 'timeseries'])
-    drop_fields = ['attributes', 'attributesUpdates']
+    #drop_fields = ['attributes', 'attributesUpdates']
     devices = cfg['devices']
     mapping_keys =set(mt.keys())
     for i in range(len(devices)) :
@@ -59,10 +63,10 @@ def convert(cfg, mt) :
             del devices[i]['attributes']
         if 'attributeUpdates' in devices[i].keys():
             del devices[i]['attributeUpdates']
-        if 'serverSideRpc' in devices[i].keys() : 
-            del devices[i]['serverSideRpc']
+        #if 'serverSideRpc' in devices[i].keys() : 
+        #    del devices[i]['serverSideRpc']
+    #cfg['devices'] = [devices[0], devices[1], devices[2], devices[3], devices[4], devices[5], devices[6], devices[7]]
     cfg['devices'] = devices
-        
     return cfg
 
 bacnet_cfg = convert(bacnet_cfg, mapping_table)

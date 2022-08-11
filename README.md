@@ -3,7 +3,7 @@ bacnet config file generator for thingsboard-gateway
 --------
 ### 의존성 설치
 ```bash
-$ python3 -m pip install -r requirements
+$ python3 -m pip install -r requirements.txt
 ```
 --------
 ### 사용법

@@ -1,5 +1,7 @@
 # bacnet-configurator
-bacnet config file generator for thingsboard-gateway
+## bacnet config file generator for thingsboard-gateway
+* 각 사이트 별로 BACnet 에 연결된 PC에서 BACNet Gateway 에 연결된 하위 장비들을 모두 탐색하여 Thingsboard IoT Gateway에서 사용할 bacnet.json 설정 파일을 자동 구성 
+
 --------
 ### 의존성 설치
 ```bash

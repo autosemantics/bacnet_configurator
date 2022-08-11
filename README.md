@@ -3,7 +3,7 @@ bacnet config file generator for thingsboard-gateway
 --------
 ### 의존성 설치
 ```bash
-$ python3 -m pip install requirements
+$ python3 -m pip install -r requirements
 ```
 --------
 ### 사용법
@@ -20,9 +20,59 @@ $ python3 bac_conf.py --ip_addr='your.ipv4.bacnet.addr' --subnet=24 --port=47808
 $ python3 converter.py --mapping_table=LUT.csv --config bacnet.json
 ```
 ### 구성도
+* 클래스 다이어그램
+![class-diagram](./resource/class_diagram.png)  
+---
+* 시퀀스 다이어그램
+![sequence](./resource/sequence.png)  
+---
+* Class 역할
+  - BACNetManager : BACnet 에 속한 게이트웨이들을 탐색하고, 게이트웨이 개별에 속한 장치를 탕색한다. 각 장치의 오브젝트 탐색한다.
+  - ObjectConfig : BACNetManager 가 수집한 object 의 데이터를 통해 object config 을 구성한다.
+  - DeviceConfig : BACNetManager가 수집한 object config 을 device 별로 저장하여 DeviceConfig을 구성한다.
+  - ConfigGenerator : BACNetManager 에서 최종적으로 구성한 DeviceConfig 을 바탕으로 Thingsboard IoT Gateway 의 bacnet.json 파일을 생성한다.
+## 산출물 예시
+```json
+{
+    "general": { // ConfigGenerator의 생성자 변수들
+        "objectName": "TB_gateway",
+        "address": "0.0.0.0:47808",
+        "objectIdentifier": 1476,
+        "maxApduLengthAccepted": 1476,
+        "segmentationSupported": "segmentedBoth",
+        "vendorIdentifier": 15
+    },
+    "devices" : [
+        {    
+            //DeviceConfig에 의해 생성됨
+            "deviceName": "BACnet Device ${objectName}",
+            "deviceType": "default",
+            "address": "192.168.0.17:47808",
+            "pollPeriod": 10000,
+            // 이하 attributes, timeseries... 등은 모두 ObjectConfig에 의해 생성됨
+            "attributes": [   
+                {                 
+                    "key": "BO2015",
+                    "type": "string",
+                    "objectId": "binaryOutput:2015",
+                    "propertyId": "description"
+                }
+            ],
+            "timeseries": [{
+                "key": "AO2218",
+                "type": "double",
+                "objectId": "analogOutput:2218",
+                "propertyId": "presentValue"
+            }],
+            "serverSideRpc" : [],
+            "clientSideRpc" : []
+        }
+    ]
+}
+```
 
 ### Limits
-* 재귀탐색 미구현 : Root Gateway 밑 Gateway 에 또다른 하위 Gateway 가 물려 있을 경우 재귀 탐색하지 않음
+* 재귀탐색 미구현 : Root Gateway 밑 Gateway 에 또다른 하위 Gateway가 있을 경우 탐색 하지 않음.
 ------
 ### Dependencies
 * BAC0==21.12.3
